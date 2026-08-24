@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -20,4 +21,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
         @Param("doctorId") Long doctorId, 
         @Param("datetime") LocalDateTime datetime
     );
+
+    List<Appointment> findByDoctorProfileIdAndAppointmentDatetimeBetween(Long doctorProfileId, LocalDateTime start, LocalDateTime end);
 }
