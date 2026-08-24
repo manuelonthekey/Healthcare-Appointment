@@ -26,6 +26,9 @@ public class Appointment {
 
     private String symptoms;
 
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Long getDoctorProfileId() { return doctorProfileId; }
@@ -38,4 +41,6 @@ public class Appointment {
     public void setStatus(String status) { this.status = status; }
     public String getSymptoms() { return symptoms; }
     public void setSymptoms(String symptoms) { this.symptoms = symptoms; }
+    public LocalDateTime getExpiresAt() { return expiresAt; }
+    public void setExpiresAt(LocalDateTime expiresAt) { this.expiresAt = expiresAt; }
 }

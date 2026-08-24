@@ -24,3 +24,13 @@ This document keeps track of all the user interface (UI) and user experience (UX
   * A visual calendar (date picker) allowing doctors to click days they will be on leave, preventing patients from booking on those dates.
 * **Patient Slot Viewer (Preview):**
   * A date picker for patients to select a day, triggering the display of dynamically generated time-slot chips (e.g., [ 09:00 AM ], [ 09:30 AM ]) based on the algorithm.
+
+## Milestone 3: Patient Booking & Concurrency
+* **Doctor Search & Filtering:**
+  * Search bar and specialty dropdown filters to find doctors.
+* **Patient Booking Interface:**
+  * Dynamic time-slot grid populated by the `SlotService`.
+  * A split-pane or modal showing a **10-minute countdown timer** when a slot is held.
+* **Booking Confirmation:**
+  * Text area for entering symptoms prior to confirming the transaction.
+  * Success screen rendering the scheduled appointment details.

@@ -6,6 +6,7 @@ import com.healthcare.appointment.repository.DoctorAvailabilityRepository;
 import com.healthcare.appointment.repository.DoctorLeaveRepository;
 import com.healthcare.appointment.service.SlotService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,11 +31,15 @@ public class DoctorController {
         return availabilityRepository.save(availability);
     }
 
+    @Autowired private ApplicationEventPublisher eventPublisher;
+
     @PostMapping("/{profileId}/leaves")
     @PreAuthorize("hasRole('DOCTOR')")
     public DoctorLeave addLeave(@PathVariable Long profileId, @RequestBody DoctorLeave leave) {
         leave.setDoctorProfileId(profileId);
-        return leaveRepository.save(leave);
+        DoctorLeave saved = leaveRepository.save(leave);
+        eventPublisher.publishEvent(new com.healthcare.appointment.event.LeaveAddedEvent(this, profileId, leave.getLeaveDate()));
+        return saved;
     }
 
     // Public endpoint for patients to check slots

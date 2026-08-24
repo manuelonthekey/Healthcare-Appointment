@@ -23,4 +23,14 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     );
 
     List<Appointment> findByDoctorProfileIdAndAppointmentDatetimeBetween(Long doctorProfileId, LocalDateTime start, LocalDateTime end);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.transaction.annotation.Transactional
+    @Query("DELETE FROM Appointment a WHERE a.status = 'HELD' AND a.expiresAt < :now")
+    int deleteExpiredHolds(@Param("now") LocalDateTime now);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.transaction.annotation.Transactional
+    @Query("UPDATE Appointment a SET a.status = 'CANCELLED' WHERE a.doctorProfileId = :doctorId AND a.appointmentDatetime BETWEEN :start AND :end AND a.status IN ('HELD', 'SCHEDULED')")
+    int cancelAppointmentsForLeave(@Param("doctorId") Long doctorId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

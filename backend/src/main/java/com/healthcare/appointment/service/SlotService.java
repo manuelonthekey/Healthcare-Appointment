@@ -59,7 +59,8 @@ public class SlotService {
         List<Appointment> existingAppointments = appointmentRepository.findByDoctorProfileIdAndAppointmentDatetimeBetween(doctorProfileId, startOfDay, endOfDay);
         
         List<LocalTime> bookedTimes = existingAppointments.stream()
-                .filter(a -> !"CANCELLED".equals(a.getStatus()))
+                .filter(a -> "SCHEDULED".equals(a.getStatus()) || 
+                             ("HELD".equals(a.getStatus()) && (a.getExpiresAt() == null || a.getExpiresAt().isAfter(LocalDateTime.now()))))
                 .map(a -> a.getAppointmentDatetime().toLocalTime())
                 .collect(Collectors.toList());
 
