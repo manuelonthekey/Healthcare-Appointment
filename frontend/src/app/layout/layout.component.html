@@ -1,0 +1,116 @@
+<div class="app-layout">
+  <!-- Mobile Sidebar Backdrop -->
+  @if (isSidebarOpen) {
+    <div class="sidebar-backdrop" (click)="closeSidebar()"></div>
+  }
+
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.open]="isSidebarOpen">
+    <div class="sidebar-header">
+      <div class="logo">
+        <i class="fas fa-heartbeat"></i>
+        <span>BosniaHealth</span>
+      </div>
+      <span class="tagline">CARE WITH LOVE</span>
+      <!-- Close button for mobile inside sidebar -->
+      <button class="close-sidebar-btn" (click)="closeSidebar()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <!-- Admin Link -->
+      @if (isAdmin) {
+        <a class="nav-item" routerLink="/admin" routerLinkActive="active" (click)="closeSidebar()">
+          <i class="fas fa-user-shield"></i>
+          <span>Admin Dashboard</span>
+        </a>
+      }
+      
+      @if (!isAdmin) {
+        <a class="nav-item" routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeSidebar()">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+      }
+      
+      <!-- Doctor Specific Links -->
+      @if (isDoctor || isAdmin) {
+        <a class="nav-item" routerLink="/schedule" routerLinkActive="active" (click)="closeSidebar()">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Schedule / Availability</span>
+        </a>
+        
+        <a class="nav-item" routerLink="/leaves" routerLinkActive="active" (click)="closeSidebar()">
+          <i class="fas fa-umbrella-beach"></i>
+          <span>Leave</span>
+        </a>
+      }
+
+      <!-- Other Links -->
+      @if (!isAdmin) {
+        <a class="nav-item" (click)="closeSidebar()">
+          <i class="fas fa-calendar-check"></i>
+          <span>Appointments</span>
+          <span class="badge">6</span>
+        </a>
+        <a class="nav-item" (click)="closeSidebar()">
+          <i class="fas fa-users"></i>
+          <span>Patients</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="staff-section">
+        <div class="staff-header">
+          <span>STAFFS</span>
+          <span class="badge">3</span>
+        </div>
+        <div class="staff-list">
+          <div class="staff-member">
+            <img src="https://ui-avatars.com/api/?name=Marie+Claire&background=random" alt="Marie">
+            <div class="staff-info">
+              <span class="name">Marie Claire</span>
+              <span class="location">Paris, FR</span>
+            </div>
+            <i class="fas fa-comment"></i>
+          </div>
+          <!-- More staff members would go here -->
+        </div>
+      </div>
+      
+      <a class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>Account</span>
+      </a>
+      <a class="nav-item logout">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <header class="topbar">
+      <div style="display: flex; align-items: center;">
+        <button class="menu-toggle" (click)="toggleSidebar()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1>Dashboard</h1>
+      </div>
+      <button class="btn btn-primary" (click)="openBookingModal()">
+        <i class="fas fa-plus"></i> Create an Appointment
+      </button>
+    </header>
+
+    <div class="scroll-container">
+      <ng-content></ng-content>
+    </div>
+  </main>
+</div>
+
+@if (isBookingModalOpen) {
+  <app-booking-modal (close)="closeBookingModal()"></app-booking-modal>
+}

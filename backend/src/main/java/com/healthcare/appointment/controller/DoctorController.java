@@ -42,6 +42,32 @@ public class DoctorController {
         return saved;
     }
 
+    @GetMapping("/{profileId}/availability")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
+    public ResponseEntity<List<DoctorAvailability>> getAvailability(@PathVariable Long profileId) {
+        return ResponseEntity.ok(availabilityRepository.findByDoctorProfileId(profileId));
+    }
+
+    @DeleteMapping("/{profileId}/availability/{id}")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
+    public ResponseEntity<?> deleteAvailability(@PathVariable Long profileId, @PathVariable Long id) {
+        availabilityRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{profileId}/leaves")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
+    public ResponseEntity<List<DoctorLeave>> getLeaves(@PathVariable Long profileId) {
+        return ResponseEntity.ok(leaveRepository.findByDoctorProfileId(profileId));
+    }
+
+    @DeleteMapping("/{profileId}/leaves/{id}")
+    @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
+    public ResponseEntity<?> deleteLeave(@PathVariable Long profileId, @PathVariable Long id) {
+        leaveRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+
     // Public endpoint for patients to check slots
     @GetMapping("/{profileId}/slots")
     @PreAuthorize("hasRole('PATIENT') or hasRole('DOCTOR') or hasRole('ADMIN')")
@@ -50,5 +76,32 @@ public class DoctorController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         List<LocalTime> slots = slotService.generateAvailableSlots(profileId, date);
         return ResponseEntity.ok(slots);
+    }
+
+    @Autowired private com.healthcare.appointment.repository.DoctorProfileRepository doctorProfileRepository;
+
+    @GetMapping
+    @PreAuthorize("hasRole('PATIENT') or hasRole('DOCTOR') or hasRole('ADMIN')")
+    public ResponseEntity<List<com.healthcare.appointment.model.DoctorProfile>> getAllDoctors(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String specialty,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        
+        List<com.healthcare.appointment.model.DoctorProfile> doctors = doctorProfileRepository.searchDoctors(name, specialty);
+        
+        // If date is provided, filter out doctors with no available slots on that date
+        if (date != null) {
+            doctors = doctors.stream()
+                .filter(doc -> {
+                    try {
+                        return !slotService.generateAvailableSlots(doc.getId(), date).isEmpty();
+                    } catch (Exception e) {
+                        return false;
+                    }
+                })
+                .collect(java.util.stream.Collectors.toList());
+        }
+        
+        return ResponseEntity.ok(doctors);
     }
 }

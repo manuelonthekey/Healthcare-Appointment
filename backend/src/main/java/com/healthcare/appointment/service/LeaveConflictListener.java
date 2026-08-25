@@ -15,6 +15,12 @@ public class LeaveConflictListener {
 
     @Autowired
     private AppointmentRepository appointmentRepository;
+    
+    @Autowired
+    private EmailNotificationService emailNotificationService;
+    
+    @Autowired
+    private GoogleCalendarService googleCalendarService;
 
     @Async
     @EventListener
@@ -39,13 +45,24 @@ public class LeaveConflictListener {
         
         if (cancelled > 0) {
             System.out.println("CRITICAL: Background Job explicitly cancelled " + cancelled + 
-                               " appointments due to new leave conflict on " + event.getLeaveDate());
+                               " appointments due to new leave conflict on " + event.getLeaveDate() +
+                               " [Thread: " + Thread.currentThread().getName() + "]");
                                
-            // 3. Mock Email Notifications
+            // 3. Email Notifications via JobRunr
             for (com.healthcare.appointment.model.Appointment appt : affected) {
-                System.out.println("   -> [MOCK EMAIL SENT] to Patient ID " + appt.getPatientProfileId() + 
-                                   " | Subject: 'Appointment on " + appt.getAppointmentDatetime() + 
-                                   " was cancelled due to sudden doctor leave.'");
+                org.jobrunr.scheduling.BackgroundJob.enqueue(
+                    () -> emailNotificationService.sendEmail(
+                        "patient" + appt.getPatientProfileId() + "@example.com", 
+                        "Appointment Cancelled due to Doctor Leave", 
+                        "Your appointment on " + appt.getAppointmentDatetime() + " was cancelled due to sudden doctor leave."
+                    )
+                );
+                
+                if (appt.getGoogleEventId() != null) {
+                    org.jobrunr.scheduling.BackgroundJob.enqueue(
+                        () -> googleCalendarService.deleteEvent(appt.getGoogleEventId(), "user@example.com", "dummy_refresh_token")
+                    );
+                }
             }
         }
     }

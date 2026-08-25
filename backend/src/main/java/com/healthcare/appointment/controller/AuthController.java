@@ -22,6 +22,9 @@ public class AuthController {
     @Autowired PasswordEncoder encoder;
     @Autowired JwtUtils jwtUtils;
 
+    @Autowired com.healthcare.appointment.repository.PatientProfileRepository patientRepo;
+    @Autowired com.healthcare.appointment.repository.DoctorProfileRepository doctorRepo;
+
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -30,7 +33,16 @@ public class AuthController {
         String jwt = jwtUtils.generateJwtToken(authentication);
         
         User user = userRepository.findByEmail(loginRequest.email).get();
-        return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(), user.getRole()));
+        Long profileId = null;
+        if (user.getRole().equals("PATIENT")) {
+            var opt = patientRepo.findByUserId(user.getId());
+            if (opt.isPresent()) profileId = opt.get().getId();
+        } else if (user.getRole().equals("DOCTOR")) {
+            var opt = doctorRepo.findByUserId(user.getId());
+            if (opt.isPresent()) profileId = opt.get().getId();
+        }
+
+        return ResponseEntity.ok(new AuthResponse(jwt, user.getEmail(), user.getRole(), profileId));
     }
 
     @PostMapping("/register")

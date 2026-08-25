@@ -92,7 +92,7 @@ public class BookingScenariosTest {
         LocalDateTime slotTime = LocalDateTime.of(2030, 5, 5, 9, 0);
         
         // 1. Patient holds and confirms slot
-        Appointment appt = bookingService.holdSlot(docId, pat1Id, slotTime, "Fever");
+        Appointment appt = bookingService.holdSlot(docId, pat1Id, slotTime, "Fever", null);
         appt = bookingService.confirmBooking(appt.getId(), pat1Id);
         System.out.println("1. Patient 1 booked slot at: " + appt.getAppointmentDatetime() + " | Status: " + appt.getStatus());
 
@@ -115,8 +115,8 @@ public class BookingScenariosTest {
         LocalDateTime slotTime = LocalDateTime.of(2030, 5, 5, 10, 0);
 
         System.out.println("1. Two patients attempting to hold the exact same slot concurrently...");
-        CompletableFuture<Appointment> t1 = CompletableFuture.supplyAsync(() -> bookingService.holdSlot(docId, pat1Id, slotTime, "Fever"));
-        CompletableFuture<Appointment> t2 = CompletableFuture.supplyAsync(() -> bookingService.holdSlot(docId, pat2Id, slotTime, "Cough"));
+        CompletableFuture<Appointment> t1 = CompletableFuture.supplyAsync(() -> bookingService.holdSlot(docId, pat1Id, slotTime, "Fever", null));
+        CompletableFuture<Appointment> t2 = CompletableFuture.supplyAsync(() -> bookingService.holdSlot(docId, pat2Id, slotTime, "Cough", null));
         
         CompletableFuture.allOf(t1, t2).handle((res, ex) -> null).join();
 
@@ -137,7 +137,7 @@ public class BookingScenariosTest {
         LocalDateTime slotTime = LocalDateTime.of(2030, 5, 5, 11, 0);
 
         // 1. Patient holds slot
-        Appointment hold = bookingService.holdSlot(docId, pat1Id, slotTime, "Checkup");
+        Appointment hold = bookingService.holdSlot(docId, pat1Id, slotTime, "Checkup", null);
         System.out.println("1. Patient holds slot. Status: " + hold.getStatus() + " | Expires At: " + hold.getExpiresAt());
 
         // 2. Simulate time passing (Force expiry)
@@ -165,10 +165,10 @@ public class BookingScenariosTest {
         LocalDateTime slot2 = leaveDate.atTime(10, 0);
 
         // 1. Two patients book appointments successfully
-        Appointment a1 = bookingService.holdSlot(docId, pat1Id, slot1, "Fever");
+        Appointment a1 = bookingService.holdSlot(docId, pat1Id, slot1, "Fever", null);
         a1 = bookingService.confirmBooking(a1.getId(), pat1Id);
         
-        Appointment a2 = bookingService.holdSlot(docId, pat2Id, slot2, "Cough");
+        Appointment a2 = bookingService.holdSlot(docId, pat2Id, slot2, "Cough", null);
         a2 = bookingService.confirmBooking(a2.getId(), pat2Id);
 
         System.out.println("1. Two patients booked slots on " + leaveDate);

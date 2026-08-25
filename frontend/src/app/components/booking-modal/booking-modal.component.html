@@ -1,0 +1,188 @@
+<div class="modal-backdrop" (click)="closeModal()">
+  <div class="modal-content large" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Create an Appointment</h2>
+      @if (step === 3) {
+        <div class="timer-badge">
+          <i class="fas fa-stopwatch"></i> {{ timerDisplay }}
+        </div>
+      }
+      <button class="close-btn" (click)="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="modal-body">
+      
+      <!-- Step 1: Doctor Search -->
+      @if (step === 1) {
+        <div class="step-container">
+          <h3>Select a Doctor</h3>
+          <div class="search-bar" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 150px; display: flex; align-items: center; background: white; border: 1px solid var(--color-border); padding: 8px 12px; border-radius: var(--radius-md);">
+              <i class="fas fa-search" style="color: var(--color-text-muted); margin-right: 8px;"></i>
+              <input type="text" [(ngModel)]="searchName" (input)="searchDoctors()" placeholder="Search name..." style="border: none; outline: none; width: 100%;">
+            </div>
+            <div style="flex: 1; min-width: 150px; display: flex; align-items: center; background: white; border: 1px solid var(--color-border); padding: 8px 12px; border-radius: var(--radius-md);">
+              <i class="fas fa-stethoscope" style="color: var(--color-text-muted); margin-right: 8px;"></i>
+              <select [(ngModel)]="searchSpecialty" (change)="searchDoctors()" style="border: none; outline: none; width: 100%; background: transparent;">
+                <option value="">All Specialties</option>
+                <option value="Cardiology">Cardiology</option>
+                <option value="Dermatology">Dermatology</option>
+                <option value="Neurology">Neurology</option>
+                <option value="Pediatrics">Pediatrics</option>
+                <option value="General Practice">General Practice</option>
+              </select>
+            </div>
+            <div style="flex: 1; min-width: 150px; display: flex; align-items: center; background: white; border: 1px solid var(--color-border); padding: 8px 12px; border-radius: var(--radius-md);">
+              <i class="fas fa-calendar-alt" style="color: var(--color-text-muted); margin-right: 8px;"></i>
+              <input type="date" [(ngModel)]="searchDate" (change)="searchDoctors()" style="border: none; outline: none; width: 100%;">
+            </div>
+          </div>
+          
+          <div class="doctor-list">
+            @if (doctors.length === 0) {
+              <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--color-text-muted);">
+                <i class="fas fa-user-md" style="font-size: 32px; margin-bottom: 12px;"></i>
+                <p>No doctors match your filters.</p>
+                <button class="btn btn-outline-primary btn-sm mt-2" (click)="searchName=''; searchSpecialty=''; searchDate=''; searchDoctors()">Clear Filters</button>
+              </div>
+            }
+            @for (doctor of doctors; track doctor.id) {
+              <div class="doctor-card" [class.selected]="selectedDoctor?.id === doctor.id" (click)="selectDoctor(doctor)">
+                <img src="https://ui-avatars.com/api/?name={{ doctor.name }}&background=random" alt="Doctor">
+                <div>
+                  <h4>Dr. {{ doctor.name }}</h4>
+                  <span>{{ doctor.specialization }}</span>
+                  @if (searchDate) {
+                    <div style="font-size: 11px; color: var(--color-primary); margin-top: 4px; font-weight: 600;">
+                      <i class="fas fa-check-circle"></i> Available on {{ searchDate | date:'MMM d' }}
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Step 2: Date & Slot -->
+      @if (step === 2) {
+        <div class="step-container">
+          <h3>Select Date & Time</h3>
+          <div class="split-layout">
+            <div class="date-picker">
+              <input type="date" [(ngModel)]="selectedDate" (change)="onDateChange()" class="form-control">
+            </div>
+            
+            <div class="slot-grid">
+              @if (selectedDate && selectedDoctor) {
+                @if (availableSlots.length > 0) {
+                  @for (time of availableSlots; track time) {
+                    <button class="slot-btn" [class.selected]="selectedSlot === time" (click)="selectSlot(time)">{{ time.substring(0,5) }}</button>
+                  }
+                } @else {
+                  <p class="text-muted">No slots available for this date.</p>
+                }
+              } @else {
+                <p class="text-muted">Please select a doctor and date first.</p>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Step 3: Symptoms & AI (MS4) -->
+      @if (step === 3) {
+        <div class="step-container">
+          <h3>Patient Symptoms</h3>
+          
+          <div class="split-pane">
+            <div class="symptoms-input">
+              <label>Describe your symptoms in detail:</label>
+              <textarea 
+                [ngModel]="symptoms" 
+                (ngModelChange)="onSymptomsChange($event)"
+                placeholder="e.g., I have been experiencing severe headaches and nausea for the past 2 days..."
+                rows="6">
+              </textarea>
+            </div>
+            
+            <!-- AI Assistant Card (MS4) -->
+            <div class="ai-assistant-card">
+              <div class="ai-header">
+                <i class="fas fa-robot text-primary"></i>
+                <strong>AI Pre-visit Analysis</strong>
+                @if (isAnalyzing) {
+                  <i class="fas fa-spinner fa-spin text-muted" style="margin-left: auto;"></i>
+                }
+              </div>
+              
+              <div class="disclaimer-banner">
+                <i class="fas fa-exclamation-triangle"></i> This AI output is assistive and not a medical diagnosis.
+              </div>
+
+              @if (aiAnalysis) {
+                <div class="ai-results">
+                  <div class="ai-row">
+                    <span>Urgency:</span>
+                    <span class="badge" 
+                          [class.badge-danger]="aiAnalysis.urgencyLevel === 'HIGH'"
+                          [class.badge-warning]="aiAnalysis.urgencyLevel === 'MEDIUM'"
+                          [class.badge-success]="aiAnalysis.urgencyLevel === 'LOW'">
+                      {{ aiAnalysis.urgencyLevel }}
+                    </span>
+                  </div>
+                  <div class="ai-row">
+                    <span>Chief Complaint:</span>
+                    <strong>{{ aiAnalysis.chiefComplaint }}</strong>
+                  </div>
+                  <div class="ai-symptoms">
+                    <span>Extracted Symptoms:</span>
+                    <div class="tags">
+                      @for (sym of aiAnalysis.extractedSymptoms; track sym) {
+                        <span class="tag">{{ sym }}</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              } @else if (!isAnalyzing && symptoms.length > 10) {
+                <div class="empty-state text-muted">Waiting to analyze...</div>
+              } @else {
+                <div class="empty-state text-muted">Start typing symptoms to see AI analysis.</div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Step 4: Success -->
+      @if (step === 4) {
+        <div class="success-screen">
+          <i class="fas fa-check-circle text-primary" style="font-size: 48px; margin-bottom: 16px;"></i>
+          <h2>Booking Confirmed!</h2>
+          <p>Your appointment with <strong>{{ selectedDoctor }}</strong> is scheduled for <strong>{{ selectedDate }} at {{ selectedSlot }}</strong>.</p>
+        </div>
+      }
+
+    </div>
+    
+    <!-- Footer Actions -->
+    <div class="modal-footer">
+      @if (step > 1 && step < 4) {
+        <button class="btn btn-outline" (click)="step = step - 1">Back</button>
+      }
+      
+      @if (step === 1) {
+        <button class="btn btn-primary" [disabled]="!selectedDoctor" (click)="nextStep()">Continue</button>
+      }
+      @if (step === 2) {
+        <button class="btn btn-primary" [disabled]="!selectedSlot" (click)="nextStep()">Hold Slot & Continue</button>
+      }
+      @if (step === 3) {
+        <button class="btn btn-primary" [disabled]="!symptoms" (click)="confirmBooking()">Confirm Appointment</button>
+      }
+      @if (step === 4) {
+        <button class="btn btn-primary" (click)="closeModal()">Done</button>
+      }
+    </div>
+  </div>
+</div>

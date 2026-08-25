@@ -1,1 +1,26 @@
-<p>register works!</p>
+<div style="max-width: 400px; margin: 50px auto; padding: 20px; font-family: sans-serif; border: 1px solid #ccc; border-radius: 8px;">
+  <h2>Register</h2>
+  <div style="margin-bottom: 10px;">
+    <label>Email: </label><br/>
+    <input type="email" id="email" #emailInput style="width: 100%; padding: 8px;"/>
+  </div>
+  <div style="margin-bottom: 10px;">
+    <label>Password: </label><br/>
+    <input type="password" id="password" #passwordInput style="width: 100%; padding: 8px;"/>
+  </div>
+  <div style="margin-bottom: 10px;">
+    <label>Role: </label><br/>
+    <select id="role" #roleInput style="width: 100%; padding: 8px;">
+      <option value="PATIENT">Patient</option>
+      <option value="DOCTOR">Doctor</option>
+    </select>
+  </div>
+  <button (click)="onRegister(emailInput.value, passwordInput.value, roleInput.value)" style="padding: 10px 15px; cursor: pointer;">Register</button>
+  
+  <p *ngIf="message" style="color: green; margin-top: 15px; word-wrap: break-word;">{{ message }}</p>
+  <p *ngIf="error" style="color: red; margin-top: 15px;">{{ error }}</p>
+
+  <p style="margin-top: 15px; font-size: 14px;">
+    Already have an account? <a href="/login">Sign in</a>
+  </p>
+</div>

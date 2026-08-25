@@ -23,7 +23,7 @@ public class BookingConcurrencyTest {
     public void testConcurrentSlotHold_OnlyOneSucceeds() {
         // Setup DB relationships to satisfy Foreign Key constraints
         com.healthcare.appointment.model.User docUser = new com.healthcare.appointment.model.User();
-        docUser.setEmail("doctest@test.com");
+        docUser.setEmail("doctest_" + System.currentTimeMillis() + "@test.com");
         docUser.setPasswordHash("pass");
         docUser.setRole("DOCTOR");
         docUser = userRepository.save(docUser);
@@ -35,7 +35,7 @@ public class BookingConcurrencyTest {
         doc = doctorProfileRepository.save(doc);
 
         com.healthcare.appointment.model.User patUser = new com.healthcare.appointment.model.User();
-        patUser.setEmail("pattest@test.com");
+        patUser.setEmail("pattest_" + System.currentTimeMillis() + "@test.com");
         patUser.setPasswordHash("pass");
         patUser.setRole("PATIENT");
         patUser = userRepository.save(patUser);
@@ -45,8 +45,14 @@ public class BookingConcurrencyTest {
         p1.setName("Patient 1");
         p1 = patientProfileRepository.save(p1);
 
+        com.healthcare.appointment.model.User patUser2 = new com.healthcare.appointment.model.User();
+        patUser2.setEmail("pattest2_" + System.currentTimeMillis() + "@test.com");
+        patUser2.setPasswordHash("pass");
+        patUser2.setRole("PATIENT");
+        patUser2 = userRepository.save(patUser2);
+
         com.healthcare.appointment.model.PatientProfile p2 = new com.healthcare.appointment.model.PatientProfile();
-        p2.setUserId(patUser.getId());
+        p2.setUserId(patUser2.getId());
         p2.setName("Patient 2");
         p2 = patientProfileRepository.save(p2);
 
@@ -56,10 +62,10 @@ public class BookingConcurrencyTest {
         LocalDateTime datetime = LocalDateTime.of(2030, 1, 1, 10, 0);
 
         CompletableFuture<Appointment> t1 = CompletableFuture.supplyAsync(() -> 
-            bookingService.holdSlot(docId, pat1Id, datetime, "Fever")
+            bookingService.holdSlot(docId, pat1Id, datetime, "Fever", null)
         );
         CompletableFuture<Appointment> t2 = CompletableFuture.supplyAsync(() -> 
-            bookingService.holdSlot(docId, pat2Id, datetime, "Cough")
+            bookingService.holdSlot(docId, pat2Id, datetime, "Cough", null)
         );
 
         CompletableFuture.allOf(t1, t2).handle((res, ex) -> null).join();

@@ -22,11 +22,12 @@ public class PatientController {
         public Long patientId;
         public LocalDateTime datetime;
         public String symptoms;
+        public String aiAnalysis;
     }
 
     @PostMapping("/hold")
     public ResponseEntity<Appointment> holdSlot(@RequestBody HoldRequest request) {
-        Appointment hold = bookingService.holdSlot(request.doctorId, request.patientId, request.datetime, request.symptoms);
+        Appointment hold = bookingService.holdSlot(request.doctorId, request.patientId, request.datetime, request.symptoms, request.aiAnalysis);
         return ResponseEntity.ok(hold);
     }
 

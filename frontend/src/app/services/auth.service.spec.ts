@@ -29,7 +29,7 @@ describe('AuthService & Auth Flow', () => {
       expect(service.hasRole('PATIENT')).toBeTrue();
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/auth/login');
+    const req = httpMock.expectOne('/api/auth/login');
     expect(req.request.method).toBe('POST');
     req.flush(dummyResponse);
   });
@@ -38,7 +38,7 @@ describe('AuthService & Auth Flow', () => {
     service.login('wrong@test.com', 'badpass').subscribe({
       error: err => expect(err.status).toBe(401)
     });
-    const req = httpMock.expectOne('http://localhost:8080/api/auth/login');
+    const req = httpMock.expectOne('/api/auth/login');
     req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
   });
 

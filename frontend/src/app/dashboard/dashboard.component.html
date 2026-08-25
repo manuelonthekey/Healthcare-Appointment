@@ -1,0 +1,194 @@
+<div class="dashboard-content">
+  <!-- Top Metrics -->
+  @if(metrics) {
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon bg-blue-light">
+          <i class="fas fa-calendar-check text-blue"></i>
+        </div>
+        <div class="metric-info">
+          <span class="label">Total Appointments</span>
+          <div class="value-row">
+            <span class="value">{{ metrics.totalAppointments }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon bg-orange-light">
+          <i class="fas fa-file-alt text-orange"></i>
+        </div>
+        <div class="metric-info">
+          <span class="label">New Appointments</span>
+          <div class="value-row">
+            <span class="value">{{ metrics.newAppointments }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon bg-red-light">
+          <i class="fas fa-chart-line text-red"></i>
+        </div>
+        <div class="metric-info">
+          <span class="label">Growth</span>
+          <div class="value-row">
+            <span class="value">{{ metrics.growth }}%</span>
+            <span class="trend positive"><i class="fas fa-arrow-up"></i> 13.0%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-icon bg-green-light">
+          <i class="fas fa-users text-green"></i>
+        </div>
+        <div class="metric-info">
+          <span class="label">Staff</span>
+          <div class="value-row">
+            <span class="value">{{ metrics.staff }}</span>
+            <span class="trend neutral">(100%)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Today's Appointments Horizontal Scroll -->
+  <div class="section-header">
+    <h2>Today's Appointments</h2>
+    <a href="#" class="show-all">Show all</a>
+  </div>
+  
+  <div class="horizontal-scroll">
+    @for(apt of todayAppointments; track apt.id) {
+      <div class="appointment-card" (click)="openDetailsModal(apt)">
+        <div class="card-header">
+          <img src="https://ui-avatars.com/api/?name={{apt.patientName | slice:0:1}}&background=random" alt="Patient">
+          <button class="more-btn"><i class="fas fa-ellipsis-h"></i></button>
+        </div>
+        <h3 class="patient-name">{{ apt.patientName }}</h3>
+        <span class="appointment-type text-primary">{{ apt.type }}</span>
+        <div class="card-footer">
+          <span class="date"><i class="far fa-calendar"></i> Today</span>
+          <span class="time"><i class="far fa-clock"></i> {{ apt.time }}</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- New Appointments Table -->
+  <div class="section-header">
+    <h2>New Appointments</h2>
+  </div>
+
+  <div class="card table-card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>PATIENT'S NAME</th>
+          <th>DATE AND TIME</th>
+          <th>TREATMENT</th>
+          <th>PRICE</th>
+          <th>STATUS</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(u of upcomingAppointments; track u.id) {
+          <tr>
+            <td>
+              <div class="table-user">
+                <img src="https://ui-avatars.com/api/?name={{u.patientName}}&background=random" alt="Patient">
+                <span>{{ u.patientName }}</span>
+              </div>
+            </td>
+            <td>{{ u.date }}<br><span class="text-muted">11:00 - 12:00</span></td>
+            <td>{{ u.type }}</td>
+            <td>-</td>
+            <td><span class="status-dot dot-orange"></span> {{ u.status }}</td>
+            <td><button class="btn btn-outline" (click)="openDetailsModal(u)">View Details</button></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Placeholder (Task 8) -->
+@if (isDetailsModalOpen) {
+  <div class="modal-backdrop" (click)="closeDetailsModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Appointment details</h2>
+        <span class="status-badge orange">POSTPONED</span>
+      </div>
+      
+      <div class="modal-body">
+        <div class="info-grid">
+          <div>
+            <label>PATIENT INFORMATION</label>
+            <div class="patient-brief">
+              <img src="https://ui-avatars.com/api/?name=Theresa+Webb&background=random" alt="Patient">
+              <div>
+                <strong>Theresa Webb</strong>
+                <span class="text-primary">PCR Test</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label>DATE AND TIME</label>
+            <div class="datetime-brief">
+              <span><i class="far fa-clock"></i> 11:00 - 12:00</span>
+              <span><i class="far fa-calendar"></i> Feb 15, 2020</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task 8: AI Post-visit section (Doctor View) -->
+        <div class="clinical-notes-section">
+          <label>CLINICAL NOTES</label>
+          <textarea 
+            [(ngModel)]="rawNotes" 
+            placeholder="Type shorthand clinical notes here..."
+            rows="3"
+            class="form-control mb-2">
+          </textarea>
+          
+          <button class="btn btn-outline ai-btn" (click)="draftSummaryWithAi()" [disabled]="!rawNotes || isSummarizing">
+            <i class="fas" [ngClass]="isSummarizing ? 'fa-spinner fa-spin' : 'fa-magic'"></i>
+            {{ isSummarizing ? 'Generating...' : 'Draft Summary with AI' }}
+          </button>
+          
+          @if (aiSummary) {
+            <div class="ai-summary-editor mt-3">
+              <label>AI-GENERATED DRAFT (EDITABLE)</label>
+              <textarea 
+                [(ngModel)]="aiSummary.structuredSummary" 
+                rows="4"
+                class="form-control mb-2 ai-textarea">
+              </textarea>
+              <div class="key-takeaways">
+                <strong>Key Takeaways:</strong>
+                <ul>
+                  @for (tk of aiSummary.keyTakeaways; track tk) {
+                    <li>{{ tk }}</li>
+                  }
+                </ul>
+              </div>
+            </div>
+          }
+        </div>
+        
+        <div class="modal-actions mt-4">
+          <button class="btn btn-primary" style="flex: 1;" (click)="completeAppointment()">
+            <i class="fas fa-save"></i> Save Notes & Complete
+          </button>
+          <button class="btn btn-danger" style="flex: 1;" (click)="cancelAppointment()">
+            Cancel Appointment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

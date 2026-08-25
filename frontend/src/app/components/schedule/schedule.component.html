@@ -1,0 +1,56 @@
+<div class="schedule-container">
+  <h2>Doctor Schedule & Availability</h2>
+  
+  <div class="card">
+    <h3>Add Working Hours</h3>
+    <form (ngSubmit)="addAvailability()" class="availability-form">
+      <div class="form-group">
+        <label>Day of Week</label>
+        <select [(ngModel)]="newAvailability.dayOfWeek" name="dayOfWeek" class="form-control" required>
+          <option value="1">Monday</option>
+          <option value="2">Tuesday</option>
+          <option value="3">Wednesday</option>
+          <option value="4">Thursday</option>
+          <option value="5">Friday</option>
+          <option value="6">Saturday</option>
+          <option value="7">Sunday</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Start Time</label>
+        <input type="time" [(ngModel)]="newAvailability.startTime" name="startTime" class="form-control" required>
+      </div>
+
+      <div class="form-group">
+        <label>End Time</label>
+        <input type="time" [(ngModel)]="newAvailability.endTime" name="endTime" class="form-control" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+        <i class="fas fa-plus"></i> Add Availability
+      </button>
+    </form>
+  </div>
+
+  <div class="card mt-4">
+    <h3>Current Schedule</h3>
+    <div class="schedule-list">
+      @if(availabilities.length === 0) {
+        <p class="text-muted">No availability set.</p>
+      }
+      
+      @for(avail of availabilities; track avail.id) {
+        <div class="schedule-item">
+          <div class="schedule-info">
+            <span class="day">{{ getDayName(avail.dayOfWeek) }}</span>
+            <span class="time">{{ avail.startTime }} - {{ avail.endTime }}</span>
+          </div>
+          <button class="btn btn-danger btn-sm" (click)="deleteAvailability(avail.id)">
+            <i class="fas fa-trash"></i> Remove
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</div>

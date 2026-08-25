@@ -34,3 +34,12 @@ This document keeps track of all the user interface (UI) and user experience (UX
 * **Booking Confirmation:**
   * Text area for entering symptoms prior to confirming the transaction.
   * Success screen rendering the scheduled appointment details.
+
+## Milestone 4: AI Integration
+* **Pre-visit AI Assistant UI:**
+  * When entering symptoms in the booking modal, a "Generate AI Analysis" button should appear.
+  * A read-only preview card displaying extracted symptoms, chief complaint, and urgency level badges (Green/Yellow/Red).
+  * A clear medical disclaimer banner permanently fixed above the analysis.
+* **Post-visit Clinical Summary UI:**
+  * In the Doctor's Consultation view, a "Draft Summary with AI" button beside the raw clinical notes textarea.
+  * An editable textarea that populates with the AI's output, allowing the doctor to manually correct hallucinations or errors before hitting "Save Final Notes".

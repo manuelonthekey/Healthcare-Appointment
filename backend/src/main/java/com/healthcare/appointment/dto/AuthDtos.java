@@ -14,8 +14,9 @@ public class AuthDtos {
         public String token;
         public String email;
         public String role;
-        public AuthResponse(String token, String email, String role) {
-            this.token = token; this.email = email; this.role = role;
+        public Long id;
+        public AuthResponse(String token, String email, String role, Long id) {
+            this.token = token; this.email = email; this.role = role; this.id = id;
         }
     }
     public static class MessageResponse {

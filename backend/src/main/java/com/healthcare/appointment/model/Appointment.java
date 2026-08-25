@@ -29,6 +29,18 @@ public class Appointment {
     @Column(name = "expires_at")
     private LocalDateTime expiresAt;
 
+    @Column(name = "clinical_notes")
+    private String clinicalNotes;
+
+    @Column(name = "ai_summary", columnDefinition = "TEXT")
+    private String aiSummary;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
+    @Column(name = "google_event_id")
+    private String googleEventId;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Long getDoctorProfileId() { return doctorProfileId; }
@@ -43,4 +55,12 @@ public class Appointment {
     public void setSymptoms(String symptoms) { this.symptoms = symptoms; }
     public LocalDateTime getExpiresAt() { return expiresAt; }
     public void setExpiresAt(LocalDateTime expiresAt) { this.expiresAt = expiresAt; }
+    public String getClinicalNotes() { return clinicalNotes; }
+    public void setClinicalNotes(String clinicalNotes) { this.clinicalNotes = clinicalNotes; }
+    public String getAiSummary() { return aiSummary; }
+    public void setAiSummary(String aiSummary) { this.aiSummary = aiSummary; }
+    public LocalDateTime getCompletedAt() { return completedAt; }
+    public void setCompletedAt(LocalDateTime completedAt) { this.completedAt = completedAt; }
+    public String getGoogleEventId() { return googleEventId; }
+    public void setGoogleEventId(String googleEventId) { this.googleEventId = googleEventId; }
 }

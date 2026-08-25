@@ -1,0 +1,225 @@
+<div class="admin-container">
+  <div class="header-section">
+    <h2>Doctor Management</h2>
+    <div class="filter-controls" style="display: flex; gap: 15px; align-items: center;">
+      <button class="btn btn-primary" (click)="openAddDoctorModal()">
+        <i class="fas fa-plus"></i> Add Doctor
+      </button>
+      <div>
+        <label for="statusFilter">Filter Status:</label>
+        <select id="statusFilter" (change)="onFilterChange($event)" class="form-control" style="display: inline-block; width: auto; margin-left: 10px;">
+          <option value="">All</option>
+          <option value="PENDING">Pending</option>
+          <option value="ACTIVE">Active</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  @if(isLoading) {
+    <div class="loading-state">
+      <i class="fas fa-spinner fa-spin"></i> Loading doctors...
+    </div>
+  } @else if (doctors.length === 0) {
+    <div class="empty-state">
+      <i class="fas fa-user-md text-muted"></i>
+      <p>No doctors found matching this criteria.</p>
+    </div>
+  } @else {
+    <div class="card table-card">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>DOCTOR NAME</th>
+            <th>SPECIALIZATION</th>
+            <th>STATUS</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(doc of doctors; track doc.id) {
+            <tr>
+              <td>#{{ doc.id }}</td>
+              <td>
+                <div class="table-user">
+                  <img src="https://ui-avatars.com/api/?name={{doc.name}}&background=random" alt="Avatar">
+                  <span>Dr. {{ doc.name }}</span>
+                </div>
+              </td>
+              <td>{{ doc.specialization }}</td>
+              <td>
+                <span class="status-badge" 
+                      [class.orange]="doc.status === 'PENDING'"
+                      [class.green]="doc.status === 'ACTIVE'"
+                      [class.red]="doc.status === 'REJECTED'">
+                  {{ doc.status }}
+                </span>
+              </td>
+              <td class="action-buttons">
+                <button class="btn btn-outline-success btn-sm" 
+                        [disabled]="doc.status === 'ACTIVE' || isUpdating"
+                        (click)="updateStatus(doc, 'ACTIVE')"
+                        title="Approve">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-sm" 
+                        [disabled]="doc.status === 'REJECTED' || isUpdating"
+                        (click)="updateStatus(doc, 'REJECTED')"
+                        title="Reject">
+                  <i class="fas fa-times"></i>
+                </button>
+                <button class="btn btn-outline-primary btn-sm ml-2"
+                        (click)="openScheduleModal(doc)"
+                        title="Manage Working Hours">
+                  <i class="fas fa-calendar-alt"></i>
+                </button>
+                <button class="btn btn-outline-primary btn-sm"
+                        (click)="openLeavesModal(doc)"
+                        title="Manage Leaves">
+                  <i class="fas fa-umbrella-beach"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<!-- Add Doctor Modal -->
+@if(showAddDoctorModal) {
+  <div class="modal-backdrop" (click)="closeAddDoctorModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2>Add New Doctor</h2>
+        <button class="btn-close" (click)="closeAddDoctorModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="addDoctor()" #addForm="ngForm">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" [(ngModel)]="newDoctor.name" name="name" class="form-control" required placeholder="Dr. Jane Doe">
+          </div>
+          <div class="form-group">
+            <label>Email (Login)</label>
+            <input type="email" [(ngModel)]="newDoctor.email" name="email" class="form-control" required placeholder="jane.doe@clinic.com">
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" [(ngModel)]="newDoctor.password" name="password" class="form-control" required minlength="6">
+          </div>
+          <div class="form-group">
+            <label>Specialization</label>
+            <input type="text" [(ngModel)]="newDoctor.specialization" name="specialization" class="form-control" required placeholder="Cardiology">
+          </div>
+          <div class="form-group">
+            <label>Slot Duration (minutes)</label>
+            <select [(ngModel)]="newDoctor.slotDurationMins" name="slotDurationMins" class="form-control" required>
+              <option [ngValue]="15">15 Minutes</option>
+              <option [ngValue]="30">30 Minutes</option>
+              <option [ngValue]="45">45 Minutes</option>
+              <option [ngValue]="60">60 Minutes</option>
+            </select>
+          </div>
+          <div class="modal-actions mt-4">
+            <button type="submit" class="btn btn-primary w-100" [disabled]="!addForm.form.valid || isAdding">
+              @if(isAdding) { <i class="fas fa-spinner fa-spin"></i> Creating... } @else { Create Doctor }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Schedule Modal -->
+@if(showScheduleModal && selectedDoctorForSchedule) {
+  <div class="modal-backdrop" (click)="closeScheduleModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()" style="max-width: 600px;">
+      <div class="modal-header">
+        <h2>Working Hours - Dr. {{ selectedDoctorForSchedule.name }}</h2>
+        <button class="btn-close" (click)="closeScheduleModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted mb-4">Set the recurring weekly schedule. Checked days are active working days.</p>
+        
+        <div class="schedule-editor">
+          @for(day of availabilities; track day.dayOfWeek) {
+            <div class="schedule-row" style="display: flex; align-items: center; gap: 15px; margin-bottom: 12px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+              <div style="flex: 0 0 120px;">
+                <label style="display: flex; align-items: center; gap: 8px; margin: 0; cursor: pointer; font-weight: 500;">
+                  <input type="checkbox" [(ngModel)]="day.enabled"> {{ daysOfWeek[day.dayOfWeek - 1].label }}
+                </label>
+              </div>
+              
+              @if(day.enabled) {
+                <div style="display: flex; gap: 10px; align-items: center; flex: 1;">
+                  <input type="time" [(ngModel)]="day.startTime" class="form-control" style="width: 120px;" required>
+                  <span class="text-muted">to</span>
+                  <input type="time" [(ngModel)]="day.endTime" class="form-control" style="width: 120px;" required>
+                </div>
+              } @else {
+                <div class="text-muted" style="flex: 1; font-style: italic;">Off</div>
+              }
+            </div>
+          }
+        </div>
+        
+        <div class="modal-actions mt-4" style="display: flex; gap: 10px;">
+          <button class="btn btn-outline" style="flex: 1;" (click)="closeScheduleModal()">Cancel</button>
+          <button class="btn btn-primary" style="flex: 1;" (click)="saveSchedule()" [disabled]="isUpdating">
+            @if(isUpdating) { <i class="fas fa-spinner fa-spin"></i> Saving... } @else { Save Schedule }
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Leaves Modal -->
+@if(showLeavesModal && selectedDoctorForLeaves) {
+  <div class="modal-backdrop" (click)="closeLeavesModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2>Manage Leaves - Dr. {{ selectedDoctorForLeaves.name }}</h2>
+        <button class="btn-close" (click)="closeLeavesModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        
+        <form (ngSubmit)="addLeave()" class="mb-4" style="display: flex; gap: 10px; align-items: flex-end;">
+          <div class="form-group mb-0" style="flex: 1;">
+            <label>Add Leave Date</label>
+            <input type="date" [(ngModel)]="newLeaveDate" name="leaveDate" class="form-control" required>
+          </div>
+          <button type="submit" class="btn btn-danger" [disabled]="!newLeaveDate || isUpdating">
+            <i class="fas fa-calendar-times"></i> Mark Leave
+          </button>
+        </form>
+
+        <h4>Upcoming Leaves</h4>
+        <div class="leaves-list">
+          @if(leaves.length === 0) {
+            <p class="text-muted">No leaves scheduled.</p>
+          } @else {
+            <div style="max-height: 300px; overflow-y: auto;">
+              @for(leave of leaves; track leave.id) {
+                <div class="leave-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--color-border);">
+                  <div>
+                    <i class="fas fa-umbrella-beach text-orange mr-2"></i>
+                    <strong>{{ leave.leaveDate }}</strong>
+                  </div>
+                  <button class="btn btn-outline btn-sm" (click)="deleteLeave(leave.id)" [disabled]="isUpdating">
+                    <i class="fas fa-trash text-danger"></i>
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}
