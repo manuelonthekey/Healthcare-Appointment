@@ -64,7 +64,11 @@ public class AppointmentController {
     public static class CompleteRequest {
         public String clinicalNotes;
         public String aiSummary;
+        public java.util.List<com.healthcare.appointment.dto.ClinicalSummaryResponse.MedicationDto> medications;
     }
+
+    @Autowired
+    private com.healthcare.appointment.repository.MedicationReminderRepository medicationReminderRepository;
 
     @PostMapping("/{id}/complete")
     @PreAuthorize("hasRole('DOCTOR') or hasRole('ADMIN')")
@@ -83,6 +87,33 @@ public class AppointmentController {
         appt.setCompletedAt(LocalDateTime.now());
         
         appointmentRepository.save(appt);
+        
+        if (req.medications != null && !req.medications.isEmpty()) {
+            for (com.healthcare.appointment.dto.ClinicalSummaryResponse.MedicationDto med : req.medications) {
+                if (med.getTimes() != null && !med.getTimes().isEmpty()) {
+                    for (String t : med.getTimes()) {
+                        try {
+                            java.time.LocalTime parsedTime = java.time.LocalTime.parse(t);
+                            if (medicationReminderRepository.existsByAppointmentIdAndMedicationNameAndReminderTime(appt.getId(), med.getName(), parsedTime)) {
+                                continue; // Idempotency check
+                            }
+                            com.healthcare.appointment.model.MedicationReminder reminder = new com.healthcare.appointment.model.MedicationReminder();
+                            reminder.setAppointmentId(appt.getId());
+                            reminder.setPatientProfileId(appt.getPatientProfileId());
+                            reminder.setMedicationName(med.getName());
+                            reminder.setDosage(med.getDosage());
+                            reminder.setFrequency(med.getFrequency());
+                            reminder.setReminderTime(parsedTime);
+                            reminder.setStartDate(med.getStartDate() != null ? java.time.LocalDate.parse(med.getStartDate()) : java.time.LocalDate.now());
+                            reminder.setEndDate(med.getEndDate() != null ? java.time.LocalDate.parse(med.getEndDate()) : java.time.LocalDate.now().plusDays(7));
+                            medicationReminderRepository.save(reminder);
+                        } catch (Exception e) {
+                            System.err.println("Failed to parse medication time/date: " + e.getMessage());
+                        }
+                    }
+                }
+            }
+        }
         
         System.out.println("CRITICAL: Appointment " + id + " was completed.");
         
