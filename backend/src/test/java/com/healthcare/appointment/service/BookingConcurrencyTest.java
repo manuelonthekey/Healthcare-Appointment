@@ -12,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@org.springframework.boot.test.mock.mockito.MockBean(com.healthcare.appointment.service.MedicationReminderTask.class)
 public class BookingConcurrencyTest {
 
     @Autowired private PatientBookingService bookingService;

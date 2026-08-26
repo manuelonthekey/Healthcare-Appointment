@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Disabled("Disabled for CI/CD as it requires a real API Key")
+@org.springframework.boot.test.mock.mockito.MockBean(com.healthcare.appointment.service.MedicationReminderTask.class)
 public class LlmLiveTest {
 
     @Autowired

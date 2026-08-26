@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(properties = "llm.api.key=") // Force empty API key to test fallback
+@org.springframework.boot.test.mock.mockito.MockBean(com.healthcare.appointment.service.MedicationReminderTask.class)
 public class LlmFallbackTest {
 
     @Autowired
