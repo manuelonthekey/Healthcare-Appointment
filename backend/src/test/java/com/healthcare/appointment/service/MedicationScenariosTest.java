@@ -216,7 +216,7 @@ public class MedicationScenariosTest {
     @Test
     public void testSchedulerQuery_FiltersCorrectlyAndDuplicateProtection() {
         LocalDate today = LocalDate.now();
-        LocalTime now = LocalTime.now();
+        LocalTime now = LocalTime.of(12, 0); // Hardcode to noon to prevent flaky midnight failures
 
         // 1. Due Reminder (valid dates, past time, not notified today)
         MedicationReminder due = new MedicationReminder();

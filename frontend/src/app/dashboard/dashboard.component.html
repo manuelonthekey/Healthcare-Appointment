@@ -54,6 +54,35 @@
     </div>
   }
 
+  <!-- Upcoming Medications (Patient Only) -->
+  @if(isPatient) {
+    <div class="section-header mt-4">
+      <h2>Upcoming Medications</h2>
+    </div>
+    
+    <div class="horizontal-scroll">
+      @if(medications.length === 0) {
+        <div class="empty-state">
+          <p>No upcoming medications.</p>
+        </div>
+      }
+      @for(med of medications; track med.id) {
+        <div class="appointment-card" style="min-width: 200px;">
+          <div class="card-header">
+            <div class="metric-icon bg-blue-light" style="width: 40px; height: 40px; font-size: 1.2rem;">
+              <i class="fas fa-pills text-blue"></i>
+            </div>
+          </div>
+          <h3 class="patient-name">{{ med.medicationName }}</h3>
+          <span class="appointment-type text-primary">{{ med.dosage || 'As prescribed' }}</span>
+          <div class="card-footer">
+            <span class="time"><i class="far fa-clock"></i> {{ med.reminderTime }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
   <!-- Today's Appointments Horizontal Scroll -->
   <div class="section-header">
     <h2>Today's Appointments</h2>

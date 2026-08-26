@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,6 +16,8 @@ export class DashboardComponent {
   metrics: any = null;
   todayAppointments: any[] = [];
   upcomingAppointments: any[] = [];
+  medications: any[] = [];
+  isPatient = false;
   
   selectedAppointmentId: number | null = null;
 
@@ -23,7 +26,9 @@ export class DashboardComponent {
   isSummarizing = false;
   aiSummary: any = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {
+    this.isPatient = this.authService.hasRole('PATIENT');
+  }
 
   ngOnInit() {
     this.loadData();
@@ -33,6 +38,9 @@ export class DashboardComponent {
     this.http.get<any>('/api/dashboard/metrics').subscribe(res => this.metrics = res);
     this.http.get<any[]>('/api/dashboard/today').subscribe(res => this.todayAppointments = res);
     this.http.get<any[]>('/api/dashboard/upcoming').subscribe(res => this.upcomingAppointments = res);
+    if (this.isPatient) {
+      this.http.get<any[]>('/api/patients/medications').subscribe(res => this.medications = res);
+    }
   }
 
   openDetailsModal(apt: any) {
