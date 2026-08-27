@@ -8,7 +8,8 @@ import com.healthcare.appointment.model.User;
 import com.healthcare.appointment.repository.UserRepository;
 import org.jobrunr.scheduling.BackgroundJob;
 import org.springframework.stereotype.Service;
-import jakarta.annotation.PostConstruct;
+import org.springframework.context.event.EventListener;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,7 +34,7 @@ public class MedicationReminderTask {
         this.emailNotificationService = emailNotificationService;
     }
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
     public void init() {
         // Run every minute
         BackgroundJob.scheduleRecurrently("medication-reminder-job", "* * * * *", () -> this.processDueReminders());
