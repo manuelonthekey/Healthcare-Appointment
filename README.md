@@ -49,7 +49,7 @@ cd backend
 ./mvnw clean install
 ./mvnw spring-boot:run
 ```
-The API will be available at `http://localhost:8080`.
+The API will be available at `http://localhost:8081`.
 
 ---
 
@@ -75,7 +75,7 @@ To enable Google Calendar syncing:
 4. Go to **Credentials** and click **Create Credentials > OAuth client ID**.
 5. Set the Application Type to **Web application**.
 6. Add `http://localhost:4200` to the **Authorized JavaScript origins**.
-7. Add `http://localhost:8080/api/calendar/oauth2/callback` to the **Authorized redirect URIs**.
+7. Add `http://localhost:8081/api/calendar/callback` to the **Authorized redirect URIs**.
 8. Copy your **Client ID** and **Client Secret**.
 9. Update `backend/src/main/resources/application.properties` (or your `.env`) with:
    - `google.client.id`
