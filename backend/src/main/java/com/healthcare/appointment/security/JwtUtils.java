@@ -9,11 +9,16 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @Component
 public class JwtUtils {
-    // 256-bit secret for HMAC SHA
-    private final String jwtSecret = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
-    private final int jwtExpirationMs = 86400000;
+    
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${jwt.expiration.ms:86400000}")
+    private int jwtExpirationMs;
 
     private SecretKey key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
