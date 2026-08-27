@@ -69,7 +69,7 @@ public class OpenAiLlmServiceImpl implements LlmService {
         }
 
         try {
-            String prompt = "Summarize these clinical notes into a structured paragraph and extract key takeaways. Return strictly in JSON matching this schema: {\"structuredSummary\": \"\", \"keyTakeaways\": []}. Notes: " + rawNotes;
+            String prompt = "Summarize these clinical notes into a structured paragraph and extract key takeaways. Also extract medication information ONLY when medication instructions are actually present in the doctor's notes. Do not invent medication schedules when the doctor's notes do not provide them. If an exact time is unavailable but the frequency is available, follow the application's existing design rather than inventing arbitrary times. Return strictly in JSON matching this schema: {\"structuredSummary\": \"\", \"keyTakeaways\": [], \"medications\": [{\"name\": \"\", \"dosage\": \"\", \"frequency\": \"\", \"times\": [\"09:00\"], \"startDate\": \"YYYY-MM-DD\", \"endDate\": \"YYYY-MM-DD\"}]}. If no medications are mentioned, return an empty array for medications. Notes: " + rawNotes;
             String jsonResponse = callLlm(prompt);
             
             return objectMapper.readValue(jsonResponse, ClinicalSummaryResponse.class);

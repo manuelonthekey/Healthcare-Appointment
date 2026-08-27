@@ -36,4 +36,30 @@ public class PatientController {
         Appointment confirmed = bookingService.confirmBooking(appointmentId, patientId);
         return ResponseEntity.ok(confirmed);
     }
+
+    @Autowired
+    private com.healthcare.appointment.repository.PatientProfileRepository patientProfileRepository;
+
+    @Autowired
+    private com.healthcare.appointment.repository.MedicationReminderRepository medicationReminderRepository;
+
+    @Autowired
+    private com.healthcare.appointment.repository.UserRepository userRepository;
+
+    @GetMapping("/medications")
+    public ResponseEntity<?> getMedications(java.security.Principal principal) {
+        String email = principal.getName();
+        com.healthcare.appointment.model.User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return ResponseEntity.status(403).body("User not found");
+        }
+
+        com.healthcare.appointment.model.PatientProfile profile = patientProfileRepository.findByUserId(user.getId()).orElse(null);
+        if (profile == null) {
+            return ResponseEntity.status(403).body("Patient profile not found");
+        }
+
+        java.util.List<com.healthcare.appointment.model.MedicationReminder> medications = medicationReminderRepository.findByPatientProfileId(profile.getId());
+        return ResponseEntity.ok(medications);
+    }
 }
