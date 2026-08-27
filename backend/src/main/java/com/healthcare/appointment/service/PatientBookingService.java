@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Service
 public class PatientBookingService {
     @Autowired private AppointmentRepository appointmentRepository;
+    @Autowired private com.healthcare.appointment.repository.DoctorProfileRepository doctorProfileRepository;
     @Autowired private EmailNotificationService emailNotificationService;
     @Autowired private GoogleCalendarService googleCalendarService;
 
@@ -59,11 +60,22 @@ public class PatientBookingService {
             )
         );
         
+        String token = null;
+        try {
+            com.healthcare.appointment.model.DoctorProfile doc = doctorProfileRepository.findById(saved.getDoctorProfileId()).orElse(null);
+            if (doc != null && doc.getUser() != null) {
+                token = doc.getUser().getRefreshToken();
+            }
+        } catch (Exception e) {
+            // Ignore
+        }
+        final String refreshToken = token;
+
         org.jobrunr.scheduling.BackgroundJob.enqueue(
             () -> googleCalendarService.createEventForAppointment(
                 saved.getId(), 
                 "patient" + patientId + "@example.com", 
-                "dummy_refresh_token", 
+                refreshToken, 
                 "Doctor Appointment", 
                 "Symptoms: " + saved.getSymptoms(),
                 saved.getAppointmentDatetime().toString(),
