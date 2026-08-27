@@ -116,6 +116,7 @@ public class OpenAiLlmServiceImpl implements LlmService {
         ClinicalSummaryResponse fallback = new ClinicalSummaryResponse();
         fallback.setStructuredSummary("AI Summarization Unavailable. Please refer to raw notes.");
         fallback.setKeyTakeaways(new ArrayList<>());
+        fallback.setMedications(new ArrayList<>());
         return fallback;
     }
 }
