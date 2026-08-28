@@ -1,26 +1,38 @@
-<div style="max-width: 400px; margin: 50px auto; padding: 20px; font-family: sans-serif; border: 1px solid #ccc; border-radius: 8px;">
-  <h2>Register</h2>
-  <div style="margin-bottom: 10px;">
+<nav style="display:flex; justify-content:space-between; padding:20px; background:#f4f4f4;">
+  <div style="font-weight:bold; font-size:24px; color:#0056b3;">
+    <i class="fas fa-heartbeat"></i> BosniaHealth
+  </div>
+  <div style="display:flex; align-items:center;">
+    <span style="margin-right:20px; color:#333;">About Us</span>
+    <span style="margin-right:20px; color:#333;">Contact Us</span>
+    <a routerLink="/login" style="padding:10px 20px; background:#007bff; color:white; text-decoration:none; border-radius:5px;">Login</a>
+  </div>
+</nav>
+
+<div style="max-width: 400px; margin: 50px auto; padding: 30px; font-family: sans-serif; border: 1px solid #ccc; border-radius: 8px; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+  <h2 style="margin-bottom: 20px; text-align:center;">Register</h2>
+  <div style="margin-bottom: 15px;">
     <label>Email: </label><br/>
-    <input type="email" id="email" #emailInput style="width: 100%; padding: 8px;"/>
+    <input type="email" id="email" #emailInput style="width: 100%; padding: 10px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box;"/>
   </div>
-  <div style="margin-bottom: 10px;">
+  <div style="margin-bottom: 15px;">
     <label>Password: </label><br/>
-    <input type="password" id="password" #passwordInput style="width: 100%; padding: 8px;"/>
+    <input type="password" id="password" #passwordInput style="width: 100%; padding: 10px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box;"/>
   </div>
-  <div style="margin-bottom: 10px;">
+  <div style="margin-bottom: 20px;">
     <label>Role: </label><br/>
-    <select id="role" #roleInput style="width: 100%; padding: 8px;">
+    <select id="role" #roleInput style="width: 100%; padding: 10px; border:1px solid #ddd; border-radius:4px; box-sizing:border-box;">
       <option value="PATIENT">Patient</option>
       <option value="DOCTOR">Doctor</option>
+      <option value="ADMIN">Admin</option>
     </select>
   </div>
-  <button (click)="onRegister(emailInput.value, passwordInput.value, roleInput.value)" style="padding: 10px 15px; cursor: pointer;">Register</button>
+  <button (click)="onRegister(emailInput.value, passwordInput.value, roleInput.value)" style="width:100%; padding: 12px; background:#28a745; color:white; border:none; border-radius:4px; cursor: pointer; font-size:16px;">Sign Up</button>
   
-  <p *ngIf="message" style="color: green; margin-top: 15px; word-wrap: break-word;">{{ message }}</p>
-  <p *ngIf="error" style="color: red; margin-top: 15px;">{{ error }}</p>
+  <p *ngIf="message" style="color: green; margin-top: 15px; word-wrap: break-word; text-align:center;">{{ message }}</p>
+  <p *ngIf="error" style="color: red; margin-top: 15px; text-align:center;">{{ error }}</p>
 
-  <p style="margin-top: 15px; font-size: 14px;">
-    Already have an account? <a href="/login">Sign in</a>
+  <p style="margin-top: 20px; font-size: 14px; text-align:center;">
+    Already have an account? <a routerLink="/login" style="color:#007bff; text-decoration:none;">Log in</a>
   </p>
 </div>

@@ -34,6 +34,17 @@ export class DashboardComponent {
     this.loadData();
   }
 
+  searchQuery = '';
+  statusFilter = '';
+
+  get filteredUpcomingAppointments() {
+    return this.upcomingAppointments.filter(apt => {
+      const matchSearch = this.searchQuery ? apt.patientName?.toLowerCase().includes(this.searchQuery.toLowerCase()) : true;
+      const matchStatus = this.statusFilter ? apt.status?.toLowerCase() === this.statusFilter.toLowerCase() : true;
+      return matchSearch && matchStatus;
+    });
+  }
+
   loadData() {
     this.http.get<any>('/api/dashboard/metrics').subscribe(res => this.metrics = res);
     this.http.get<any[]>('/api/dashboard/today').subscribe(res => this.todayAppointments = res);

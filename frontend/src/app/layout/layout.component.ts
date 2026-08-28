@@ -16,10 +16,24 @@ export class LayoutComponent {
   isSidebarOpen = false;
   isAdmin = false;
   isDoctor = false;
+  isPatient = false;
+  pastAppointments: any[] = [];
 
   constructor(private authService: AuthService) {
     this.isAdmin = this.authService.hasRole('ADMIN');
     this.isDoctor = this.authService.hasRole('DOCTOR');
+    this.isPatient = this.authService.hasRole('PATIENT');
+  }
+
+  ngOnInit() {
+    if (this.isPatient) {
+      // TODO(backend): No endpoint exists to specifically fetch past appointments. 
+      // Wiring this up with dummy data to represent the UI for now.
+      this.pastAppointments = [
+        { id: 101, date: '2023-01-15', status: 'Completed' },
+        { id: 102, date: '2023-05-20', status: 'Cancelled' }
+      ];
+    }
   }
 
   openBookingModal() {
@@ -38,5 +52,9 @@ export class LayoutComponent {
     if (this.isSidebarOpen) {
       this.isSidebarOpen = false;
     }
+  }
+
+  logout() {
+    this.authService.logout();
   }
 }

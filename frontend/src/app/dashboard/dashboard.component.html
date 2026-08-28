@@ -107,8 +107,17 @@
   </div>
 
   <!-- New Appointments Table -->
-  <div class="section-header">
-    <h2>New Appointments</h2>
+  <div class="section-header" style="display:flex; justify-content:space-between; align-items:center;">
+    <h2>Upcoming Appointments</h2>
+    <div style="display:flex; gap:10px;">
+      <input type="text" [(ngModel)]="searchQuery" placeholder="Search by name..." style="padding:8px; border:1px solid #ccc; border-radius:4px;"/>
+      <select [(ngModel)]="statusFilter" style="padding:8px; border:1px solid #ccc; border-radius:4px;">
+        <option value="">All Statuses</option>
+        <option value="Completed">Completed</option>
+        <option value="Postponed">Postponed</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+    </div>
   </div>
 
   <div class="card table-card">
@@ -124,7 +133,7 @@
         </tr>
       </thead>
       <tbody>
-        @for(u of upcomingAppointments; track u.id) {
+        @for(u of filteredUpcomingAppointments; track u.id) {
           <tr>
             <td>
               <div class="table-user">

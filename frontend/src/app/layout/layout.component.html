@@ -46,45 +46,40 @@
           <span>Leave</span>
         </a>
       }
-
-      <!-- Other Links -->
-      @if (!isAdmin) {
-        <a class="nav-item" (click)="closeSidebar()">
-          <i class="fas fa-calendar-check"></i>
-          <span>Appointments</span>
-          <span class="badge">6</span>
-        </a>
-        <a class="nav-item" (click)="closeSidebar()">
-          <i class="fas fa-users"></i>
-          <span>Patients</span>
-        </a>
-      }
-    </nav>
+      </nav>
 
     <div class="sidebar-footer">
-      <div class="staff-section">
-        <div class="staff-header">
-          <span>STAFFS</span>
-          <span class="badge">3</span>
-        </div>
-        <div class="staff-list">
-          <div class="staff-member">
-            <img src="https://ui-avatars.com/api/?name=Marie+Claire&background=random" alt="Marie">
-            <div class="staff-info">
-              <span class="name">Marie Claire</span>
-              <span class="location">Paris, FR</span>
-            </div>
-            <i class="fas fa-comment"></i>
+      <!-- Staff Section Replacement -->
+      @if (isPatient) {
+        <div class="staff-section">
+          <div class="staff-header">
+            <span>PAST APPOINTMENTS</span>
+            <span class="badge">{{ pastAppointments.length }}</span>
           </div>
-          <!-- More staff members would go here -->
+          <div class="staff-list">
+            @if (pastAppointments.length === 0) {
+              <div style="padding: 10px; font-size: 12px; color: #888;">No past appointments found.</div>
+            }
+            @for (apt of pastAppointments; track apt.id) {
+              <div class="staff-member">
+                <div class="metric-icon bg-blue-light" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                  <i class="fas fa-calendar-check text-blue" style="font-size: 12px;"></i>
+                </div>
+                <div class="staff-info">
+                  <span class="name">{{ apt.date }}</span>
+                  <span class="location">{{ apt.status }}</span>
+                </div>
+              </div>
+            }
+          </div>
         </div>
-      </div>
+      }
       
-      <a class="nav-item">
+      <a class="nav-item" routerLink="/account" routerLinkActive="active" (click)="closeSidebar()">
         <i class="fas fa-user"></i>
         <span>Account</span>
       </a>
-      <a class="nav-item logout">
+      <a class="nav-item logout" (click)="logout()" style="cursor: pointer;">
         <i class="fas fa-sign-out-alt"></i>
         <span>Logout</span>
       </a>
@@ -100,13 +95,25 @@
         </button>
         <h1>Dashboard</h1>
       </div>
-      <button class="btn btn-primary" (click)="openBookingModal()">
-        <i class="fas fa-plus"></i> Create an Appointment
-      </button>
+      @if (isPatient) {
+        <button class="btn btn-primary" (click)="openBookingModal()">
+          <i class="fas fa-plus"></i> Create an Appointment
+        </button>
+      }
+      @if (isDoctor) {
+        <button class="btn btn-primary" routerLink="/leaves">
+          <i class="fas fa-umbrella-beach"></i> Schedule Leave
+        </button>
+      }
+      @if (isAdmin) {
+        <button class="btn btn-primary" routerLink="/admin">
+          <i class="fas fa-user-plus"></i> Add / Accept Doctors
+        </button>
+      }
     </header>
 
     <div class="scroll-container">
-      <ng-content></ng-content>
+      <router-outlet></router-outlet>
     </div>
   </main>
 </div>
