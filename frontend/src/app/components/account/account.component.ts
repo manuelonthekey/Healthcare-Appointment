@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+
 
 @Component({
   selector: 'app-account',
@@ -75,7 +75,7 @@ export class AccountComponent implements OnInit {
     // TODO(backend): no endpoint yet.
     // There is currently no PUT /api/patients/{id}/profile or /api/doctors/{id}/profile endpoint.
     // Making a dummy HTTP call that will fail to demonstrate the wiring.
-    const endpoint = this.isPatient ? `${environment.apiUrl}/api/patients/${userId}/profile` : `${environment.apiUrl}/api/doctors/${userId}/profile`;
+    const endpoint = this.isPatient ? `/api/patients/${userId}/profile` : `/api/doctors/${userId}/profile`;
     
     this.http.put(endpoint, this.profile).subscribe({
       next: () => {

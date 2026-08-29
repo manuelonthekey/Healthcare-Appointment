@@ -35,7 +35,7 @@ public class OAuthController {
     @Autowired
     private UserRepository userRepository;
 
-    private static final String REDIRECT_URI = "http://localhost:8080/api/calendar/callback";
+    private static final String REDIRECT_URI = "http://localhost:8081/api/calendar/callback";
 
     @GetMapping("/connect")
     @PreAuthorize("hasRole('DOCTOR')")

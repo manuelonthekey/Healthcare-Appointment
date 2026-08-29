@@ -16,8 +16,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+import org.springframework.boot.CommandLineRunner;
+
 @Service
-public class MedicationReminderTask {
+public class MedicationReminderTask implements CommandLineRunner {
 
     private final MedicationReminderRepository medicationReminderRepository;
     private final PatientProfileRepository patientProfileRepository;
@@ -34,8 +36,8 @@ public class MedicationReminderTask {
         this.emailNotificationService = emailNotificationService;
     }
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void init() {
+    @Override
+    public void run(String... args) throws Exception {
         // Run every minute
         BackgroundJob.scheduleRecurrently("medication-reminder-job", "* * * * *", () -> this.processDueReminders());
     }
